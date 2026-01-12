@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build: ./backend
+    container_name: vulnscan-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - vulnscan-network
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    container_name: vulnscan-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - vulnscan-network
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  # DVWA - Damn Vulnerable Web Application (Test Target)
+  dvwa:
+    image: vulnerables/web-dvwa:latest
+    container_name: vulnscan-dvwa
+    ports:
+      - "8080:80"
+    networks:
+      - vulnscan-network
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=dvwa
+      - MYSQL_DATABASE=dvwa
+      - MYSQL_USER=dvwa
+      - MYSQL_PASSWORD=p@ssw0rd
+
+networks:
+  vulnscan-network:
+    driver: bridge
