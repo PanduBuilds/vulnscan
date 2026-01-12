@@ -29,7 +29,15 @@ def read_root():
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:5173",
+        "http://3.150.140.116",
+        "http://3.150.140.116:3001",
+        "http://scanner.keerthiyakkala.com",
+        "https://scanner.keerthiyakkala.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
