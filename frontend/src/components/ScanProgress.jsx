@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 function ScanProgress({ scanId, onComplete, onNewScan }) {
   const [scanData, setScanData] = useState(null);
@@ -9,8 +10,8 @@ function ScanProgress({ scanId, onComplete, onNewScan }) {
 
     const fetchScanStatus = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/api/scan/${scanId}`);
-        
+        const response = await fetch(`${API_BASE_URL}/api/scan/${scanId}`);
+
         if (!response.ok) {
           throw new Error('Failed to fetch scan status');
         }
@@ -141,13 +142,12 @@ function ScanProgress({ scanId, onComplete, onNewScan }) {
                   <div className="w-5 h-5 border-2 border-slate-700 rounded-full"></div>
                 )}
               </div>
-              <span className={`text-sm font-mono ${
-                progressPercentage >= stage.progress 
-                  ? 'text-slate-300' 
+              <span className={`text-sm font-mono ${progressPercentage >= stage.progress
+                  ? 'text-slate-300'
                   : progressPercentage >= stage.progress - 20
-                  ? 'text-cyan-400'
-                  : 'text-slate-600'
-              }`}>
+                    ? 'text-cyan-400'
+                    : 'text-slate-600'
+                }`}>
                 {stage.name}
               </span>
             </div>

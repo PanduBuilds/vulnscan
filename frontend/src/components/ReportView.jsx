@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import FindingCard from './FindingCard';
+import { API_BASE_URL } from '../config/api';
 
 function ReportView({ scanData, onNewScan }) {
   const [filterSeverity, setFilterSeverity] = useState('all');
@@ -21,9 +22,9 @@ function ReportView({ scanData, onNewScan }) {
 
   const downloadReport = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/scan/${scanData.scan_id}/report`);
+      const response = await fetch(`${API_BASE_URL}/api/scan/${scanData.scan_id}/report`);
       const data = await response.json();
-      
+
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -63,11 +64,10 @@ function ReportView({ scanData, onNewScan }) {
           <button
             key={item.label}
             onClick={() => setFilterSeverity(filterSeverity === item.label.toLowerCase() ? 'all' : item.label.toLowerCase())}
-            className={`bg-slate-900/50 border ${
-              filterSeverity === item.label.toLowerCase() 
-                ? `border-${item.color}-500/50 ring-2 ring-${item.color}-500/20` 
+            className={`bg-slate-900/50 border ${filterSeverity === item.label.toLowerCase()
+                ? `border-${item.color}-500/50 ring-2 ring-${item.color}-500/20`
                 : 'border-slate-800/50'
-            } rounded-xl p-4 hover:bg-slate-900/70 transition-all cursor-pointer`}
+              } rounded-xl p-4 hover:bg-slate-900/70 transition-all cursor-pointer`}
           >
             <div className={`text-3xl font-bold bg-gradient-to-br ${item.gradient} bg-clip-text text-transparent mb-1`}>
               {item.count}
@@ -78,33 +78,31 @@ function ReportView({ scanData, onNewScan }) {
       </div>
 
       {/* Overall Status */}
-      <div className={`${
-        criticalCount > 0 
-          ? 'bg-red-500/10 border-red-500/50' 
+      <div className={`${criticalCount > 0
+          ? 'bg-red-500/10 border-red-500/50'
           : totalFindings > 0
-          ? 'bg-yellow-500/10 border-yellow-500/50'
-          : 'bg-green-500/10 border-green-500/50'
-      } border rounded-xl p-6`}>
+            ? 'bg-yellow-500/10 border-yellow-500/50'
+            : 'bg-green-500/10 border-green-500/50'
+        } border rounded-xl p-6`}>
         <div className="flex items-center gap-4">
           <div className="text-4xl">
             {criticalCount > 0 ? '⚠️' : totalFindings > 0 ? '⚡' : '✅'}
           </div>
           <div>
-            <h3 className={`text-xl font-bold mb-1 ${
-              criticalCount > 0 
-                ? 'text-red-400' 
+            <h3 className={`text-xl font-bold mb-1 ${criticalCount > 0
+                ? 'text-red-400'
                 : totalFindings > 0
-                ? 'text-yellow-400'
-                : 'text-green-400'
-            }`}>
-              {criticalCount > 0 
-                ? 'Critical Issues Found' 
+                  ? 'text-yellow-400'
+                  : 'text-green-400'
+              }`}>
+              {criticalCount > 0
+                ? 'Critical Issues Found'
                 : totalFindings > 0
-                ? 'Vulnerabilities Detected'
-                : 'No Critical Issues'}
+                  ? 'Vulnerabilities Detected'
+                  : 'No Critical Issues'}
             </h3>
             <p className="text-slate-400 text-sm">
-              {totalFindings === 0 
+              {totalFindings === 0
                 ? 'Basic security checks passed successfully'
                 : `Found ${totalFindings} issue${totalFindings !== 1 ? 's' : ''} across ${filteredFindings.length > 0 ? 'multiple' : 'various'} categories`}
             </p>
@@ -123,7 +121,7 @@ function ReportView({ scanData, onNewScan }) {
           </svg>
           Download JSON Report
         </button>
-        
+
         <button
           onClick={onNewScan}
           className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 px-6 py-3 rounded-lg transition-all font-bold shadow-lg shadow-cyan-500/30"

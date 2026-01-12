@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 const DEMO_TARGETS = [
   { url: 'http://localhost:8080', label: 'DVWA (localhost:8080)', description: 'Damn Vulnerable Web Application' },
@@ -16,7 +17,7 @@ function ScanForm({ onScanStart }) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/scan', {
+      const response = await fetch(`${API_BASE_URL}/api/scan`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,7 +52,7 @@ function ScanForm({ onScanStart }) {
           Scan for Vulnerabilities
         </h2>
         <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-          Automated security testing for common web vulnerabilities including XSS, SQL injection, 
+          Automated security testing for common web vulnerabilities including XSS, SQL injection,
           security headers, and SSL/TLS configuration issues.
         </p>
       </div>
