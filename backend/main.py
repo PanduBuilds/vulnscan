@@ -21,6 +21,11 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="VulnScan API", version="1.0.0")
 
+@app.get("/")
+def read_root():
+    return {"message": "VulnScan API is running. Go to /docs for API documentation."}
+
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
