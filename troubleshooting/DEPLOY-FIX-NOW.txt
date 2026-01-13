@@ -1,0 +1,123 @@
+================================================================================
+URGENT FIX - Assets Returning 404
+================================================================================
+
+Your browser shows these 404 errors:
+  - /assets/index-Dqsemgtd.css → 404
+  - /assets/index-RFCFV8MB.js → 404
+  - /favicon.ico → 404
+
+This means the frontend container's nginx is NOT serving assets correctly.
+
+THE FIX HAS BEEN MADE in frontend/nginx.conf but needs to be DEPLOYED.
+
+================================================================================
+DEPLOY NOW - Copy/Paste These Commands
+================================================================================
+
+STEP 1: Upload files from Windows
+----------------------------------
+scp -r c:/work/vulnscan/* user@your-server:/opt/vulnscan/
+
+
+STEP 2: SSH to server and run complete fix
+-------------------------------------------
+ssh user@your-server
+
+cd /opt/vulnscan
+
+chmod +x complete-fix.sh
+
+sudo ./complete-fix.sh
+
+
+That's it! The script will:
+  1. Stop containers
+  2. Remove old images
+  3. Rebuild with no cache (includes the nginx fix)
+  4. Start containers
+  5. Test everything
+  6. Update host nginx
+  7. Restart nginx
+
+================================================================================
+ALTERNATIVE: Manual Commands (if script fails)
+================================================================================
+
+ssh user@your-server
+
+cd /opt/vulnscan
+
+# Stop and remove
+docker-compose down
+docker rmi vulnscan-frontend vulnscan-backend
+
+# Rebuild (this includes the nginx.conf fix)
+docker-compose build --no-cache
+
+# Start
+docker-compose up -d
+
+# Wait
+sleep 30
+
+# Test assets locally (MUST return 200, not 404)
+curl -I http://127.0.0.1:3001/assets/index-Dqsemgtd.css
+curl -I http://127.0.0.1:3001/assets/index-RFCFV8MB.js
+
+# If above returns 200 OK, update host nginx
+sudo cp nginx-scanner.conf /etc/nginx/sites-available/scanner
+sudo ln -sf /etc/nginx/sites-available/scanner /etc/nginx/sites-enabled/scanner
+sudo nginx -t
+sudo systemctl restart nginx
+
+# Test website
+curl -I https://scanner.keerthiyakkala.com
+
+================================================================================
+WHAT THE FIX DOES
+================================================================================
+
+The fix adds this line to frontend/nginx.conf at line 12:
+
+    root /usr/share/nginx/html;
+
+This tells nginx WHERE to find the asset files. Without it, nginx doesn't
+know where to serve /assets/*.js and /assets/*.css from, causing 404 errors.
+
+BEFORE (line 11-14):
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, no-transform";
+    }
+
+AFTER (line 11-15):
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        root /usr/share/nginx/html;  ← ADDED
+        expires 1y;
+        add_header Cache-Control "public, no-transform";
+    }
+
+================================================================================
+VERIFY IT WORKS
+================================================================================
+
+After running the fix:
+
+1. Reload the browser page (Ctrl+Shift+R for hard refresh)
+
+2. Check DevTools Network tab:
+   ✅ /assets/index-Dqsemgtd.css → Should be 200 OK (not 404)
+   ✅ /assets/index-RFCFV8MB.js → Should be 200 OK (not 404)
+
+3. Page should load and show the VulnScan interface
+
+4. If still 404, check on server:
+   docker exec vulnscan-frontend cat /etc/nginx/conf.d/default.conf | grep -A 3 "location ~"
+
+   Should show:
+   location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+       root /usr/share/nginx/html;  ← This line MUST be there
+       expires 1y;
+
+================================================================================

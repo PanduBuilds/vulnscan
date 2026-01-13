@@ -253,6 +253,10 @@ Built as a security portfolio project demonstrating:
 - Docker containerization
 - Security best practices
 
+## TryHackMe – Week 1 Progress
+![TryHackMe Week 1](screenshots/TryHackMe_Week1.png)
+
+
 ---
 
 **⚠️ Disclaimer**: Only use this tool on systems you own or have explicit permission to test. Unauthorized security testing is illegal.
